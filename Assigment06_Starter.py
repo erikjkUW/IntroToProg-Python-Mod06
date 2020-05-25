@@ -15,6 +15,9 @@
 # erikjk,5.22.2020,Removed nested Processor functions from functions (Whoops!)
 # erikjk,5.22.2020,Cleaning up function docstrings and comments
 # erikjk,5.22.2020,Running and testing, checking debugger
+# erikjk,5.25.2020,Connecting the dots of three missing pieces of existing code
+# erikjk,5.25.2020,Return strings for strStatus variable properly print
+# erikjk,5.25.2020,Double checking all functions work, resubmitting assignment
 # ---------------------------------------------------------------------------- #
 
 # Data ---------------------------------------------------------------------- #
@@ -47,19 +50,18 @@ class Processor:
             row = {"Task": task.strip(), "Priority": priority.strip()}
             list_of_rows.append(row)
         file.close()
-        return list_of_rows, 'Success'
+        return list_of_rows, "\nYour Tasks have been loaded from the document.\n"
 
     @staticmethod
     def add_data_to_list(task, priority, list_of_rows):
         """ Assigns the user's input values to dictionary keys
             Appends new dictionary to list
-
+            
         :return: (list) of dictionary rows
         """
         row = {"Task": task.strip(), "Priority": priority.strip()}
         list_of_rows.append(row)
-        print("\nThe task \"" + task.title() + "\" has been added.\n")
-        return list_of_rows, 'Success'
+        return list_of_rows, "\nThe task \"" + task.title() + "\" has been added.\n"
 
     @staticmethod
     def remove_data_from_list(task, list_of_rows):
@@ -70,8 +72,7 @@ class Processor:
         for row in list_of_rows:
             if row["Task"].lower() == task.lower():
                 list_of_rows.remove(row)
-                print("\nThe task \"" + task.title() + "\" has been removed.\n")
-        return list_of_rows, 'Success'
+        return list_of_rows, "\nThe task \"" + task.title() + "\" has been removed.\n"
 
     @staticmethod
     def write_data_to_file(file_name, list_of_rows):
@@ -83,8 +84,7 @@ class Processor:
         for task in list_of_rows:
             file.write(task["Task"] + "," + task["Priority"] + "\n")
         file.close()
-        print("Your Tasks document has been successfully updated.")
-        return list_of_rows, 'Success'
+        return list_of_rows, "Your Tasks document has been successfully updated."
 
 # Presentation (Input/Output)  -------------------------------------------- #
 class IO:
@@ -158,7 +158,6 @@ class IO:
         priority = str(input("What is the Priority for " + task.title() + "? ")).strip()
         return task, priority
 
-
     @staticmethod
     def input_task_to_remove(list_of_rows):
         """ Captures input for Task removal function
@@ -183,20 +182,20 @@ while(True):
     # Step 4 - Process user's menu choice
     if strChoice.strip() == '1':  # Add a new Task
         strTask, strPriority = IO.input_new_task_and_priority(lstTable)
-        Processor.add_data_to_list(strTask, strPriority, lstTable)
+        lstTable, strStatus = Processor.add_data_to_list(strTask, strPriority, lstTable)
         IO.input_press_to_continue(strStatus)
         continue  # to show the menu
 
     elif strChoice == '2':  # Remove an existing Task
         strTask = IO.input_task_to_remove(lstTable)
-        Processor.remove_data_from_list(strTask, lstTable)
+        lstTable, strStatus = Processor.remove_data_from_list(strTask, lstTable)
         IO.input_press_to_continue(strStatus)
         continue  # to show the menu
 
     elif strChoice == '3':   # Save Data to File
         strChoice = IO.input_yes_no_choice("Save this data to file? (y/n) - ")
         if strChoice.lower() == "y":
-            Processor.write_data_to_file(strFileName, lstTable)
+            lstTable, strStatus = Processor.write_data_to_file(strFileName, lstTable)
             IO.input_press_to_continue(strStatus)
         else:
             IO.input_press_to_continue("Save Cancelled!")
@@ -206,9 +205,10 @@ while(True):
         print("Warning: Unsaved Data Will Be Lost!")
         strChoice = IO.input_yes_no_choice("Are you sure you want to reload data from file? (y/n) -  ")
         if strChoice.lower() == 'y':
+            lstTable, strStatus = Processor.read_data_from_file(strFileName, lstTable)
             IO.input_press_to_continue(strStatus)
         else:
-            IO.input_press_to_continue("File Reload  Cancelled!")
+            IO.input_press_to_continue("File Reload Cancelled!")
         continue  # to show the menu
 
     elif strChoice == '5':  #  Exit Program
